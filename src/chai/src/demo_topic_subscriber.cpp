@@ -18,6 +18,7 @@ void number_callback2(const chai::demo_msg::ConstPtr & msg)
 int main(int argc, char **argv)
 {
     // init ros subscriber node with name "demo_topic_subscriber_node"
+    //
     ros::init(argc, argv, "demo_topic_subscriber_node");
     // create object for the node
     ros::NodeHandle node_obj;

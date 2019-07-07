@@ -12,7 +12,7 @@
 
 using namespace chai3d;
 using namespace std;
-//
+
 //------------------------------------------------------------------------------
 // DECLARED VARIABLES
 //------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
     cout << endl;
     cout << "-----------------------------------" << endl;
     cout << "CHAI3D" << endl;
-    cout << "Yuan Guan's Template" << endl;
+    cout << "Yuan Guan's Template of motion from simulation" << endl;
     cout << "Copyright 2003-2016" << endl;
     cout << "-----------------------------------" << endl << endl << endl;
     cout << "Keyboard Options:" << endl << endl;
