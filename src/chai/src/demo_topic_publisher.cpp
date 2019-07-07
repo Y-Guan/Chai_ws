@@ -16,7 +16,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 // DECLARED VARIABLES
 //------------------------------------------------------------------------------
-//
+
 // a world that contains all objects of the virtual environment
 cWorld* world;
 
