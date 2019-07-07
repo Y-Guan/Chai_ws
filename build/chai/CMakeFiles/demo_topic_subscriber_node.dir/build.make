@@ -90,7 +90,9 @@ demo_topic_subscriber_node_EXTERNAL_OBJECTS =
 
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: chai/CMakeFiles/demo_topic_subscriber_node.dir/src/demo_topic_subscriber.cpp.o
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: chai/CMakeFiles/demo_topic_subscriber_node.dir/build.make
+/home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/libtf2_ros.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/libactionlib.so
+/home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/libmessage_filters.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/libroscpp.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /usr/lib/x86_64-linux-gnu/libboost_signals.so
@@ -100,6 +102,7 @@ demo_topic_subscriber_node_EXTERNAL_OBJECTS =
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /usr/lib/x86_64-linux-gnu/liblog4cxx.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /usr/lib/x86_64-linux-gnu/libboost_regex.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/libxmlrpcpp.so
+/home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/libtf2.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/libroscpp_serialization.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/librostime.so
 /home/yuan/chai_ws/devel/lib/chai/demo_topic_subscriber_node: /opt/ros/kinetic/lib/libcpp_common.so

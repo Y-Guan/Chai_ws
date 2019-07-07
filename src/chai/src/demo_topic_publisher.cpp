@@ -1,7 +1,9 @@
 #include "ros/ros.h"
 #include "std_msgs/Int32.h"
+#include "geometry_msgs/Vector3.h"
 #include "chai/demo_msg.h"
 #include "sensor_msgs/JointState.h"
+#include "tf2_ros/transform_listener.h"
 #include <iostream>
 #include <chai3d.h>
 //#include "GLFW/glfw3.h"
@@ -10,8 +12,6 @@
 
 using namespace chai3d;
 using namespace std;
-
-//#define GLFW_DLL
 
 //------------------------------------------------------------------------------
 // DECLARED VARIABLES
@@ -94,6 +94,9 @@ string resourceRoot;
 // DECLARED FUNCTIONS
 //------------------------------------------------------------------------------
 
+// callback when tf
+void tf_position_cb(const geometry_msgs::Vector3::ConstPtr & msg);
+
 // callback when the window1 display is resized
 void windowSizeCallback1(GLFWwindow* a_window, int a_width, int a_height);
 
@@ -143,6 +146,55 @@ int main(int argc, char* argv[])
     //resourceRoot = string(argv[0]).substr(0,string(argv[0]).find_last_of("/\\")+1);
     resourceRoot = "";
     std::cout << resourceRoot  << endl;
+
+    //--------------------------------------------------------------------------
+    // Init ROS Node
+    //--------------------------------------------------------------------------
+
+    // init a node with name "demo_topic_publisher_node"
+    ros::init(argc, argv, "demo_topic_publisher_node");
+    // create a object for the node to communicate with ROS system
+    ros::NodeHandle node_obj;
+
+    /* ######################################################
+    Create a topic publisher:
+        - topic name: /dvrk/MTMR/state_joint_current
+        - message type: std::msgs::Int32
+        - queue size: 10 (set to high if sending rate is high)
+    #######################################################*/
+    ros::Publisher jointState_publisher = node_obj.advertise<sensor_msgs::JointState>("/dvrk/MTMR/state_joint_current",10);
+
+    // set the frequency of sending data
+    ros::Rate loop_rate(30);
+
+    // create message3
+    sensor_msgs::JointState msg;
+    msg.position.resize(8);
+    msg.name.resize(8);
+    msg.name[0] = "outer_yaw";
+    msg.name[1] = "shoulder_pitch";
+    msg.name[2] = "shoulder_pitch_parallel";
+    msg.name[3] = "elbow_pitch";
+    msg.name[4] = "wrist_platform";
+    msg.name[5] = "wrist_pitch";
+    msg.name[6] = "wrist_yaw";
+    msg.name[7] = "wrist_roll";
+    msg.position[0] = 0.0;
+    msg.position[1] = 0.0;
+    msg.position[2] = 0.0;
+    msg.position[3] = 0.0;
+    msg.position[4] = 0.0;
+    msg.position[5] = 0.0;
+    msg.position[6] = 0.0;
+    msg.position[7] = 0.0;
+    double increment0 = 0.01;
+    double increment1 = 0.01;
+    double increment2 = 0.01;
+    double increment3 = 0.01;
+
+    tf2_ros::Buffer tfBuffer;
+    tf2_ros::TransformListener tfListener(tfBuffer);
+
 
     //--------------------------------------------------------------------------
     // OPEN GL - WINDOW DISPLAY
@@ -273,8 +325,8 @@ int main(int argc, char* argv[])
     world->addChild(camera);
 
     // position and orient the camera
-    camera->set(cVector3d(2.0, 0.0, 0.0),    // camera position (eye)
-                cVector3d(0.0, 0.0, 0.0),    // lookat position (target)
+    camera->set(cVector3d(0.0, -3.0, 1.0),    // camera position (eye)
+                cVector3d(0.5, 0.0, 1.0),    // lookat position (target)
                 cVector3d(0.0, 0.0, 1.0));   // direction of the (up) vector
 
     // set the near and far clipping planes of the camera
@@ -384,28 +436,28 @@ int main(int argc, char* argv[])
 
     // load texture map
     bool fileload;
-    //object0->m_texture = cTexture2d::create();
+    object0->m_texture = cTexture2d::create();
     //fileload = object0->m_texture->loadFromFile(RESOURCE_PATH("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg"));
-    //fileload = object0->m_texture->loadFromFile(RESOURCE_PATH("src/chai/external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg"));
+    fileload = object0->m_texture->loadFromFile(RESOURCE_PATH("src/chai/external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg"));
     //fileload = object0->m_texture->loadFromFile("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg");
     //std::cout << RESOURCE_PATH << endl;
-    // if (!fileload)
-    // {
-    //     #if defined(_MSVC)
-    //     fileload = object0->m_texture->loadFromFile("../../../bin/resources/images/spheremap-3.jpg");
-    //     //fileload = object0->m_texture->loadFromFile("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg");
-    //     #endif
-    // }
-    // if (!fileload)
-    // {
-    //     std::cout << "Error - Texture image failed to load correctly." << endl;
-    //     close();
-    //     return (-1);
-    // }
+    if (!fileload)
+    {
+        #if defined(_MSVC)
+        fileload = object0->m_texture->loadFromFile("../../../bin/resources/images/spheremap-3.jpg");
+        //fileload = object0->m_texture->loadFromFile("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg");
+        #endif
+    }
+    if (!fileload)
+    {
+        std::cout << "Error - Texture image failed to load correctly." << endl;
+        close();
+        return (-1);
+    }
 
     // set graphic properties
-    // object0->m_texture->setSphericalMappingEnabled(true);
-    // //object0->setUseTexture(true);
+    object0->m_texture->setSphericalMappingEnabled(true);
+    //object0->setUseTexture(true);
     object0->setUseTexture(true);
     object0->m_material->setWhite();
 
@@ -484,7 +536,7 @@ int main(int argc, char* argv[])
     cout << "here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl << endl;
 
     // main graphic loop
-    while ((!glfwWindowShouldClose(window1)) && (!glfwWindowShouldClose(window2)))
+    while ((!glfwWindowShouldClose(window1)) && (!glfwWindowShouldClose(window2)) && ros::ok())
     {
         ////////////////////////////////////////////////////////////////////////
         // RENDER WINDOW 1
@@ -529,6 +581,52 @@ int main(int argc, char* argv[])
 
         // signal frequency counter
         freqCounterGraphics.signal(1);
+
+
+        msg.position[0] = msg.position[0] + increment0;
+        msg.position[1] = msg.position[1] + increment1;
+        if (msg.position[0] > 0.15 || msg.position[0] < -0.15) {
+            increment0 = -increment0;
+        }
+        if (msg.position[1] > 0.2 || msg.position[1] < -0.2) {
+            increment1 = -increment1;
+        }
+        if (msg.position[2] > 0.1 || msg.position[2] < -0.1) {
+            increment1 = -increment1;
+        }
+
+        //publish
+        jointState_publisher.publish(msg);
+
+        //ros::Subscriber tf_position_sub = node_obj.subscribe<geometry_msgs::Vector3>("/tf/transforms[7]/transform/translation", 10, tf_position_cb);
+        geometry_msgs::TransformStamped T;
+
+        try
+        {
+            //T = tfBuffer.lookupTransform("world", "link6", ros::Time(0));
+            T = tfBuffer.lookupTransform("world", "MTMR_wrist_roll_link", ros::Time(0));
+        }
+        catch (tf2::TransformException &ex)
+        {
+            ROS_WARN("%s", ex.what());
+            ros::Duration(1.0).sleep();
+            continue;
+        }
+
+        std::cout << T << std::endl;
+        cVector3d object0_pos = object0->getLocalPos();
+        object0_pos(0) = T.transform.translation.x;
+        object0_pos(1) = T.transform.translation.y;
+        object0_pos(2) = T.transform.translation.z;
+        cout << object0_pos << endl;
+        double scale_pos = 1.5;
+        object0->setLocalPos(scale_pos*object0_pos(0),scale_pos*object0_pos(1),scale_pos*object0_pos(2));
+
+        //read and update all the topics
+        ros::spinOnce();
+        //delay to achieve desired publishing rate
+        loop_rate.sleep();
+
     }
 
     // close windows
@@ -542,6 +640,19 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+//------------------------------------------------------------------------------
+// object movement functions
+//------------------------------------------------------------------------------
+void tf_position_cb(const geometry_msgs::Vector3::ConstPtr & msg)
+{
+    cVector3d object0_pos = object0->getLocalPos();
+    object0_pos(0) = msg->z;
+    object0_pos(1) = msg->x;
+    object0_pos(2) = msg->y;
+    cout << object0_pos << endl;
+    object0->setLocalPos(object0_pos(0),object0_pos(1),object0_pos(2));
+    
+}
 
 //------------------------------------------------------------------------------
 // CALLBACK WHEN CHANGING WINDOW SIZE

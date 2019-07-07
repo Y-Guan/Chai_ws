@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
   message_generation
+  tf2_ros
 )
 
 add_subdirectory (${PROJECT_SOURCE_DIR}/external/chai3d-3.2.0)
