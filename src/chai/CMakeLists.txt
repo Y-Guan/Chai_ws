@@ -189,12 +189,19 @@ add_dependencies(demo_topic_subscriber_node chai_generate_messages_cpp)
 target_link_libraries(demo_topic_subscriber_node ${catkin_LIBRARIES})
 target_link_libraries(demo_topic_subscriber_node ${CHAI3D_LIBRARIES})
 
-add_executable(demo_topic_publisher_node ${SOURCES})
+#add_executable(demo_topic_publisher_node ${SOURCES})
+add_executable(demo_topic_publisher_node src/demo_topic_publisher.cpp)
 add_dependencies(demo_topic_publisher_node chai_generate_messages_cpp)
 target_link_libraries(demo_topic_publisher_node ${catkin_LIBRARIES})
 target_link_libraries(demo_topic_publisher_node ${CHAI3D_LIBRARIES})
 #target_link_libraries(demo_topic_publisher_node glfw ${GLFW_LIBRARIES})
 target_link_libraries(demo_topic_publisher_node glfw ${OPENGL_glu_LIBRARY} ${GLFW_LIBRARIES})
+
+add_executable(dual_display_node src/dual_display.cpp)
+add_dependencies(dual_display_node chai_generate_messages_cpp)
+target_link_libraries(dual_display_node ${catkin_LIBRARIES})
+target_link_libraries(dual_display_node ${CHAI3D_LIBRARIES})
+target_link_libraries(dual_display_node glfw ${OPENGL_glu_LIBRARY} ${GLFW_LIBRARIES})
 
 #############
 ## Install ##

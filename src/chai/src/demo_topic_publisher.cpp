@@ -6,9 +6,11 @@
 #include "tf2_ros/transform_listener.h"
 #include <iostream>
 #include <chai3d.h>
-//#include "GLFW/glfw3.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include "GLFW/glfw3.h"
 //#include "../external/chai3d-3.2.0/extras/GLFW/include/GLFW/glfw3.h"
-#include "../glfw-master/include/GLFW/glfw3.h"
+//#include "../glfw-master/include/GLFW/glfw3.h"
 
 using namespace chai3d;
 using namespace std;
@@ -30,9 +32,6 @@ cDirectionalLight *light;
 // ...
 // a few spherical objects
 cShapeSphere* object0;
-cShapeSphere* object1;
-cShapeSphere* object2;
-cShapeSphere* object3;
 
 // a haptic device handler
 cHapticDeviceHandler* handler;
@@ -128,6 +127,10 @@ void close(void);
 
 int main(int argc, char* argv[])
 {
+
+    printf("argc = %d\n", argc);
+    printf("argv = %s\n", argv[0]);
+
     //--------------------------------------------------------------------------
     // INITIALIZATION
     //--------------------------------------------------------------------------
@@ -135,7 +138,7 @@ int main(int argc, char* argv[])
     cout << endl;
     cout << "-----------------------------------" << endl;
     cout << "CHAI3D" << endl;
-    cout << "Yuan Guan's Template of motion from simulation" << endl;
+    cout << "Yuan Guan's Template" << endl;
     cout << "Copyright 2003-2016" << endl;
     cout << "-----------------------------------" << endl << endl << endl;
     cout << "Keyboard Options:" << endl << endl;
@@ -143,63 +146,62 @@ int main(int argc, char* argv[])
     cout << endl << endl;
 
     // parse first arg to try and locate resources
-    //resourceRoot = string(argv[0]).substr(0,string(argv[0]).find_last_of("/\\")+1);
-    resourceRoot = "";
+    resourceRoot = string(argv[0]).substr(0,string(argv[0]).find_last_of("/\\")+1);
     std::cout << resourceRoot  << endl;
 
     //--------------------------------------------------------------------------
     // Init ROS Node
     //--------------------------------------------------------------------------
 
-    // init a node with name "demo_topic_publisher_node"
-    ros::init(argc, argv, "demo_topic_publisher_node");
-    // create a object for the node to communicate with ROS system
-    ros::NodeHandle node_obj;
+     // init a node with name "demo_topic_publisher_node"
+     ros::init(argc, argv, "demo_topic_publisher_node");
+     // create a object for the node to communicate with ROS system
+     ros::NodeHandle node_obj;
 
-    /* ######################################################
-    Create a topic publisher:
-        - topic name: /dvrk/MTMR/state_joint_current
-        - message type: std::msgs::Int32
-        - queue size: 10 (set to high if sending rate is high)
-    #######################################################*/
-    ros::Publisher jointState_publisher = node_obj.advertise<sensor_msgs::JointState>("/dvrk/MTMR/state_joint_current",10);
+     /* ######################################################
+     Create a topic publisher:
+         - topic name: /dvrk/MTMR/state_joint_current
+         - message type: std::msgs::Int32
+         - queue size: 10 (set to high if sending rate is high)
+     #######################################################*/
+     ros::Publisher jointState_publisher = node_obj.advertise<sensor_msgs::JointState>("/dvrk/MTMR/state_joint_current",10);
 
-    // set the frequency of sending data
-    ros::Rate loop_rate(30);
+     // set the frequency of sending data
+     ros::Rate loop_rate(30);
 
-    // create message3
-    sensor_msgs::JointState msg;
-    msg.position.resize(8);
-    msg.name.resize(8);
-    msg.name[0] = "outer_yaw";
-    msg.name[1] = "shoulder_pitch";
-    msg.name[2] = "shoulder_pitch_parallel";
-    msg.name[3] = "elbow_pitch";
-    msg.name[4] = "wrist_platform";
-    msg.name[5] = "wrist_pitch";
-    msg.name[6] = "wrist_yaw";
-    msg.name[7] = "wrist_roll";
-    msg.position[0] = 0.0;
-    msg.position[1] = 0.0;
-    msg.position[2] = 0.0;
-    msg.position[3] = 0.0;
-    msg.position[4] = 0.0;
-    msg.position[5] = 0.0;
-    msg.position[6] = 0.0;
-    msg.position[7] = 0.0;
-    double increment0 = 0.01;
-    double increment1 = 0.01;
-    double increment2 = 0.01;
-    double increment3 = 0.01;
+     // create message3
+     sensor_msgs::JointState msg;
+     msg.position.resize(8);
+     msg.name.resize(8);
+     msg.name[0] = "outer_yaw";
+     msg.name[1] = "shoulder_pitch";
+     msg.name[2] = "shoulder_pitch_parallel";
+     msg.name[3] = "elbow_pitch";
+     msg.name[4] = "wrist_platform";
+     msg.name[5] = "wrist_pitch";
+     msg.name[6] = "wrist_yaw";
+     msg.name[7] = "wrist_roll";
+     msg.position[0] = 0.0;
+     msg.position[1] = 0.0;
+     msg.position[2] = 0.0;
+     msg.position[3] = 0.0;
+     msg.position[4] = 0.0;
+     msg.position[5] = 0.0;
+     msg.position[6] = 0.0;
+     msg.position[7] = 0.0;
+     double increment0 = 0.01;
+     double increment1 = 0.01;
+     double increment2 = 0.01;
+     double increment3 = 0.01;
 
-    tf2_ros::Buffer tfBuffer;
-    tf2_ros::TransformListener tfListener(tfBuffer);
+     tf2_ros::Buffer tfBuffer;
+     tf2_ros::TransformListener tfListener(tfBuffer);
 
 
     //--------------------------------------------------------------------------
     // OPEN GL - WINDOW DISPLAY
     //--------------------------------------------------------------------------
-    
+
     // initialize GLFW library
     if (!glfwInit())
     {
@@ -227,7 +229,7 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
-    ////////////////////////////////////////////////////////////////////////////    
+    ////////////////////////////////////////////////////////////////////////////
     // SETUP WINDOW 1
     ////////////////////////////////////////////////////////////////////////////
 
@@ -384,23 +386,23 @@ int main(int argc, char* argv[])
     tool->setHapticDevice(hapticDevice);
 
     // define the radius of the tool (sphere)
-    double toolRadius = 0.01;
+    double toolRadius = 0.03;
 
     // define a radius for the tool
     tool->setRadius(toolRadius);
 
     // hide the device sphere. only show proxy.
-    tool->setShowContactPoints(false, false);
+    //tool->setShowContactPoints(false, false);
 
     // create a white cursor
-    tool->m_hapticPoint->m_sphereProxy->m_material->setWhite();
+    tool->m_hapticPoint->m_sphereProxy->m_material->setBlack();
 
     // map the physical workspace of the haptic device to a larger virtual workspace.
     tool->setWorkspaceRadius(1.0);
 
     // haptic forces are enabled only if small forces are first sent to the device;
-    // this mode avoids the force spike that occurs when the application starts when 
-    // the tool is located inside an object for instance. 
+    // this mode avoids the force spike that occurs when the application starts when
+    // the tool is located inside an object for instance.
     tool->setWaitForSmallForce(true);
 
     // start the haptic tool
@@ -418,7 +420,7 @@ int main(int argc, char* argv[])
     double maxStiffness = hapticDeviceInfo.m_maxLinearStiffness / workspaceScaleFactor;
 
     /////////////////////////////////////////////////////////////////////////
-    // OTHER OBJECTS 
+    // OTHER OBJECTS
     /////////////////////////////////////////////////////////////////////////
     // ...
         /////////////////////////////////////////////////////////////////////////
@@ -436,29 +438,30 @@ int main(int argc, char* argv[])
 
     // load texture map
     bool fileload;
-    object0->m_texture = cTexture2d::create();
-    //fileload = object0->m_texture->loadFromFile(RESOURCE_PATH("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg"));
-    fileload = object0->m_texture->loadFromFile(RESOURCE_PATH("src/chai/external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg"));
-    //fileload = object0->m_texture->loadFromFile("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg");
-    //std::cout << RESOURCE_PATH << endl;
-    if (!fileload)
-    {
-        #if defined(_MSVC)
-        fileload = object0->m_texture->loadFromFile("../../../bin/resources/images/spheremap-3.jpg");
-        //fileload = object0->m_texture->loadFromFile("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg");
-        #endif
-    }
-    if (!fileload)
-    {
-        std::cout << "Error - Texture image failed to load correctly." << endl;
-        close();
-        return (-1);
-    }
-
-    // set graphic properties
-    object0->m_texture->setSphericalMappingEnabled(true);
-    //object0->setUseTexture(true);
-    object0->setUseTexture(true);
+//    object0->m_texture = cTexture2d::create();
+//    //fileload = object0->m_texture->loadFromFile(RESOURCE_PATH("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg"));
+//    fileload = object0->m_texture->loadFromFile(RESOURCE_PATH("../../../src/chai/external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg"));
+//    //fileload = object0->m_texture->loadFromFile("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg");
+//    //std::cout << RESOURCE_PATH << endl;
+//    if (!fileload)
+//    {
+//        std::cout << "Error0 - Texture image failed to load correctly." << endl;
+//        #if defined(_MSVC)
+//        fileload = object0->m_texture->loadFromFile("../../../bin/resources/images/spheremap-3.jpg");
+//        //fileload = object0->m_texture->loadFromFile("../external/chai3d-3.2.0/bin/resources/images/spheremap-3.jpg");
+//        #endif
+//    }
+//    if (!fileload)
+//    {
+//        std::cout << "Error1 - Texture image failed to load correctly." << endl;
+//        close();
+//        return (-1);
+//    }
+//
+//    // set graphic properties
+//    object0->m_texture->setSphericalMappingEnabled(true);
+//    //object0->setUseTexture(true);
+//    object0->setUseTexture(true);
     object0->m_material->setWhite();
 
     // get properties of haptic device
@@ -467,7 +470,7 @@ int main(int argc, char* argv[])
 
     // set haptic properties
     object0->m_material->setStiffness(0.4 * maxStiffness);          // % of maximum linear stiffness
-    object0->m_material->setMagnetMaxForce(0.6 * maxLinearForce);   // % of maximum linear force 
+    object0->m_material->setMagnetMaxForce(0.6 * maxLinearForce);   // % of maximum linear force
     object0->m_material->setMagnetMaxDistance(0.15);
     object0->m_material->setViscosity(0.1 * maxDamping);            // % of maximum linear damping
 
@@ -488,7 +491,7 @@ int main(int argc, char* argv[])
 
     // create a font
     font = NEW_CFONTCALIBRI20();
-    
+
     // create a label to display the haptic and graphic rate of the simulation
     labelRates = new cLabel(font);
     labelRates->m_fontColor.setBlack();
@@ -504,16 +507,7 @@ int main(int argc, char* argv[])
                                 cColorf(0.9f, 0.9f, 0.9f),
                                 cColorf(0.9f, 0.9f, 0.9f));
 
-    // create a frontground for the endoscope
-    cBackground* background2 = new cBackground();
-    //camera2->m_backLayer->addChild(background2);
 
-    // set background properties
-    background2->setCornerColors(cColorf(1.0f, 1.0f, 1.0f),
-                                cColorf(1.0f, 1.0f, 1.0f),
-                                cColorf(0.9f, 0.9f, 0.9f),
-                                cColorf(0.9f, 0.9f, 0.9f));
-    
     //--------------------------------------------------------------------------
     // START SIMULATION
     //--------------------------------------------------------------------------
@@ -536,7 +530,8 @@ int main(int argc, char* argv[])
     cout << "here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl << endl;
 
     // main graphic loop
-    while ((!glfwWindowShouldClose(window1)) && (!glfwWindowShouldClose(window2)) && ros::ok())
+    //while ((!glfwWindowShouldClose(window1)) && (!glfwWindowShouldClose(window2)) && ros::ok())
+    while ((!glfwWindowShouldClose(window1)) && (!glfwWindowShouldClose(window2)) )
     {
         ////////////////////////////////////////////////////////////////////////
         // RENDER WINDOW 1
@@ -627,6 +622,7 @@ int main(int argc, char* argv[])
         //delay to achieve desired publishing rate
         loop_rate.sleep();
 
+
     }
 
     // close windows
@@ -651,7 +647,7 @@ void tf_position_cb(const geometry_msgs::Vector3::ConstPtr & msg)
     object0_pos(2) = msg->y;
     cout << object0_pos << endl;
     object0->setLocalPos(object0_pos(0),object0_pos(1),object0_pos(2));
-    
+
 }
 
 //------------------------------------------------------------------------------
@@ -828,9 +824,9 @@ void updateHaptics(void)
         tool->computeInteractionForces();
 
         // send forces to haptic device
-        tool->applyToDevice();  
+        tool->applyToDevice();
     }
-    
+
     // exit haptics thread
     simulationFinished = true;
 }
@@ -850,8 +846,16 @@ void close(void)
     hapticDevice->close();
 
     // delete resources
-    delete hapticsThread;
-    delete world;
-    delete handler;
+    delete [] (hapticsThread);
+    delete [] (world);
+    delete [] (handler);
+//    delete [] camera;
+//    delete [] light;
+//    delete [] object0;
+//    delete [] tool;
+//    delete [] background;
+//    delete [](labelRates);
+//    delete [](window1);
+//    delete [](window2);
 }
 
